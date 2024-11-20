@@ -23,8 +23,19 @@ public class KafkaProducerServiceImpl implements KafkaProduceService {
     private KafkaTemplate<String, KafkaProducerDTO> kafkaTemplate;
 
     public void sendMessage(String topic, KafkaProducerDTO message) throws ExecutionException, InterruptedException {
+        System.out.println("ProducerService.sendMessage() topic : " + topic +", mensaje: " + message.toString() );
+
+        //System.out.println("ProducerService.createTopic()  : "  );
         //createTopic();
-        kafkaTemplate.send(topic, message);
+
+        //System.out.println("ProducerService.getTopic()  : " );
+        //getTopic();
+
+        try {
+            kafkaTemplate.send(topic, message);
+        }catch (Exception e) {
+            System.out.println("Error al enviar el mensaje a Kafka: {} " +e.getMessage().toString()+ ".-- "+ e.getMessage());
+        }
     }
 
     public void getTopic() throws ExecutionException, InterruptedException {
@@ -32,14 +43,15 @@ public class KafkaProducerServiceImpl implements KafkaProduceService {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"172.18.0.3:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class);
-
+        System.out.println("ProducerService.getTopic() config : " + config.toString());
+        //busco los topicos
         AdminClient client = AdminClient.create(config);
-
         ListTopicsResult result = client.listTopics();
         Collection<String> topics = result.names().get();
         for (String topic : topics) {
-            System.out.println(topic);
+            System.out.println("Topico encontrado : " + topic);
         }
+
         client.close();
 
     }
@@ -49,15 +61,20 @@ public class KafkaProducerServiceImpl implements KafkaProduceService {
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"172.18.0.3:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class);
+        System.out.println("ProducerService.createTopic() config : " + config.toString());
 
-        AdminClient client = AdminClient.create(config);
-        short replicationFactor = 1;
-        NewTopic newTopic = new NewTopic("topicoCreado", 1, replicationFactor);
-        ArrayList<NewTopic> newTopics = new ArrayList<>();
-        newTopics.add(newTopic);
-        client.createTopics(newTopics);
-        System.out.println("topico creado : <--------------");
-        client.close();
+        try {
+            AdminClient client = AdminClient.create(config);
+            short replicationFactor = 1;
+            NewTopic newTopic = new NewTopic("topicoCreadoJava", 1, replicationFactor);
+            ArrayList<NewTopic> newTopics = new ArrayList<>();
+            newTopics.add(newTopic);
+            client.createTopics(newTopics);
+            client.close();
+        }catch (Exception e) {
+            System.out.println("Error al crear el topico a Kafka: {}" + e.getMessage());
+        }
+
 
     }
 

@@ -23,7 +23,7 @@ public class KafkaProducerController {
     public String publishMessage(@RequestParam("message")String message) {
         KafkaProducerDTO producer = new KafkaProducerDTO("HEADER",message);
         try{
-            System.out.println("----> Producer : "+producer + ", topic:"+ TOPIC + "  FIN ");
+            System.out.println("----> Producer Controller: "+producer + ", topic:"+ TOPIC + "  FIN ");
             kafkaProducerService.sendMessage(TOPIC, producer);
             return "Mensaje enviado al tópico '" + TOPIC + "': " + message;
          } catch (Exception e) {
